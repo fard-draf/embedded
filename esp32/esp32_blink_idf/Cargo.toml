@@ -1,5 +1,5 @@
 [package]
-name = "esp32-blink"
+name = "esp32_blink_idf"
 version = "0.1.0"
 edition = "2021"
 resolver = "2"

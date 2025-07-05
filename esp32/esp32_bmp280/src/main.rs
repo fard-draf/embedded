@@ -18,7 +18,7 @@ fn main() -> ! {
     let mut delay = Delay::new();
     let mut led = Output::new(peripherals.GPIO2, Level::Low);
 
-    let io = Io::new(peripherals.IO_MUX);
+    // let io = Io::new(peripherals.IO_MUX);
     
     let sda = peripherals.GPIO21;
     let scl = peripherals.GPIO22;
@@ -34,12 +34,9 @@ fn main() -> ! {
 
     println!("Initialisation du BME280...");
     
-    // Créer une instance du BME280
-    // L'adresse I2C par défaut est 0x76
-    // Pour utiliser l'adresse 0x77, remplacez par: BME280::new_secondary(i2c)
+
     let mut bme280 = BME280::new_primary(i2c);
     
-    // Initialiser le capteur
     match bme280.init(&mut delay) {
         Ok(_) => println!("BME280 initialisé avec succès"),
         Err(e) => {
@@ -53,9 +50,8 @@ fn main() -> ! {
 
     println!("Démarrage des lectures...\n");
     
-    // Boucle infinie de lecture
+    
     loop {
-        // Mesurer les données
         
         match bme280.measure(&mut delay) {
             Ok(measurements) => {
@@ -72,45 +68,12 @@ fn main() -> ! {
         
         led.set_high();
         delay.delay_millis(100);
+        
+        
         led.set_low();
-        // Attendre 2 secondes avant la prochaine lecture
         delay.delay_millis(10000);
+
     }
 
 
-    // LED 
-    // let button = Input::new(peripherals.GPIO0, Pull::Up);
-    // let mut last_button_state = true;
-
-    // let mut current_time = 0;
-
-    // println!("Démarrage du programme Blink!");
-
-   
-
-    // loop {
-        
-    //     current_time += 10;
-
-    //     let button_state = button.is_high();
-
-    //     if button_state != last_button_state && !button_state {
-    //         if led.is_set_high() {
-    //             led.set_low(); 
-    //         } else {
-    //             led.set_high();
-    //         }
-    //     } 
-
-    //     last_button_state = button_state;
-        
-    //     delay.delay_millis(10);
-    //     led.set_high();
-    //     println!("LED ON");
-    //     delay.delay_millis(100);
-        
-    //     led.set_low();
-    //     println!("LED OFF");
-    //     delay.delay_millis(5000);
-    // }
 }
