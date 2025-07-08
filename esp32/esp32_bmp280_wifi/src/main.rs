@@ -4,9 +4,11 @@
 use esp_backtrace as _;
 use esp_hal::{
     delay::Delay,
+    clock,
     gpio::{Input, Io, Level, Output, Pull},
     i2c::master::{Config, I2c},
-    prelude::*,
+    prelude::*
+    
 };
 use esp_println::{print, println};
 use bme280::{i2c::{self, BME280}, Measurements, SensorMode};
@@ -101,8 +103,6 @@ fn main() -> ! {
         let packed_bytes = unsafe {
             core::slice::from_raw_parts(&packet as *const SensorPacket as *const u8, size_of::<SensorPacket>())
         };
-
-        
 
         packet.checksum = packed_bytes[..packed_bytes.len() - 1]
             .iter()
