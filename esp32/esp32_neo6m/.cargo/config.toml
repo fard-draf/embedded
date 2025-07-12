@@ -4,6 +4,11 @@ runner = "espflash flash --monitor"
 [build]
 target = "xtensa-esp32-none-elf"
 
+
+# [target.xtensa-esp32-none-elf]
+# runner = "probe-rs run --chip esp32"
+
+
 [unstable]
 build-std = ["core"]
 
