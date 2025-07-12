@@ -7,7 +7,7 @@ pub struct GpsData {
     pub cog: TrueCap,
     pub speed: Speed,
     pub time_stamp: TimeStamp,
-    pub sat_fix: Option<u32>,
+    pub is_reliable: bool,
     pub altitude: Option<f32>,
 }
 

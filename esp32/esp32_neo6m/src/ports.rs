@@ -1,4 +1,5 @@
 use crate::domain::GpsData;
+
 use esp_hal::{
     uart::{self, Uart},
     Blocking,
