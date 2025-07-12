@@ -1,14 +1,7 @@
-use crate::{NMEA_MAX_LEN, NMEA_TRAM_COUNT};
-
+use crate::conf::{NMEA_MAX_LEN, NMEA_TRAM_COUNT};
 use chrono::{self, NaiveDate, NaiveTime};
-
-const MAX_LAT_LEN: usize = 10;
-const MAX_LONG_LEN: usize = 11;
-const MAX_SPEED_LEN: usize = 5;
-const MAX_TIME_LEN: usize = 6;
-const MAX_DATE_UTC_LEN: usize = 6;
-
-#[derive(Debug)]
+//==================================================================================
+#[derive(Debug, Default)]
 pub struct GpsData {
     pub position: Position,
     pub cog: TrueCap,
@@ -16,27 +9,7 @@ pub struct GpsData {
     pub time_stamp: TimeStamp,
     pub sat_fix: Option<u32>,
     pub altitude: Option<f32>,
-
 }
-
-// impl<'a> Default for GpsData {
-//     fn default() -> Self {
-//         Self {
-//             position: Position {
-//                 latitude: [0u8; 11],
-//                 longitude: [0u8; 12],
-//             },
-//             speed: Speed {
-//                 speed_knot: 0.0,
-//                 speed_kmh: 0.0,
-//             },
-//             time_stamp: TimeStamp {
-//                 time: 000000,
-//                 date: 000000,
-//             },
-//         }
-//     }
-// }
 
 #[derive(Debug, Default, PartialEq, PartialOrd)]
 pub struct Position {
@@ -44,13 +17,11 @@ pub struct Position {
     pub longitude: Option<f64>,
 }
 
-#[derive(Debug)]
-pub struct Speed (pub Option<f32>);
-
-
+#[derive(Debug, Default)]
+pub struct Speed(pub Option<f32>);
 
 #[derive(Debug, Default)]
-pub struct TrueCap (pub Option<f32>);
+pub struct TrueCap(pub Option<f32>);
 
 #[derive(Debug, Default)]
 pub struct TimeStamp {
@@ -58,8 +29,7 @@ pub struct TimeStamp {
     pub date: Option<NaiveDate>,
 }
 
-
-
+//==================================================================================
 pub struct TramConstructor {
     pub rx_buffer: [u8; NMEA_MAX_LEN],
     pub rx_count: usize,
@@ -79,7 +49,7 @@ impl Default for TramConstructor {
         }
     }
 }
-
+//==================================================================================
 #[derive(Debug)]
 pub struct TramSelected {
     pub rmc: [u8; NMEA_MAX_LEN],
