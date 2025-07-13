@@ -2,25 +2,30 @@
 #![no_main]
 //==================================================================================
 mod board;
-mod conf;
 mod display;
 mod domain;
-mod parsing;
-mod ports;
+mod gps;
 mod utils;
+mod power_managment;
+mod ports;
 //==================================================================================
-use crate::display::display_init;
-use crate::display::display_print;
+use crate::display::conf::data_print;
+use crate::display::init::display_init;
+use crate::display::init::display_print;
 use crate::domain::GpsData;
 use crate::domain::TramConstructor;
-use crate::parsing::process_received_byte;
-use crate::ports::ByteSource;
+use crate::gps::parsing::nmea_parsing_bytes;
+use crate::gps::parsing::process_received_byte;
+use crate::ports::AdcByteSource;
+use crate::ports::GpsByteSource;
+use crate::power_managment::voltage::caclutate_batterie_voltage;
+//==================================================================================
+
 //==================================================================================
 use esp_backtrace as _;
-use esp_hal::{prelude::*, uart::Uart};
-
-use core::fmt::Write;
-use heapless::String as HeaplessString;
+use esp_hal::peripherals;
+use esp_hal::{prelude::*, uart::Uart, analog::adc::{Adc,AdcPin, Attenuation}};
+use esp_println::println;
 //==================================================================================
 #[entry]
 fn main() -> ! {
@@ -29,43 +34,39 @@ fn main() -> ! {
     //==========================================
     let mut display = display_init(drivers.display_i2c);
     //==========================================
-    let mut byte_source: Uart<'_, esp_hal::Blocking> = drivers.gps_uart;
+    let mut gps_byte_source: Uart<'_, esp_hal::Blocking> = drivers.gps_uart;
     let mut tram_constructor = TramConstructor::default();
     let mut gps_data = GpsData::default();
-
+    //==========================================
+    
+    let mut adc1_byte_source = Adc::new(drivers.volt_adc.peripherals_adc1, drivers.volt_adc.adc1_conf );
+    let mut adc1_pin: AdcPin<esp_hal::gpio::GpioPin<34>, peripherals::ADC1> = drivers.volt_adc.adc_pin;
+    // const VOLTAGE_DIVIDER_RATIO: f32 = 2.0;
+    // const VREF_MV: u32 = 3100;
+    // const ADC_MAX_VALUE: u32 = 4095;
+    // const CORRECTION_FACTOR: f32 = 1.1045;
     //==========================================
     loop {
-        match byte_source.read_byte_blocking() {
+
+
+
+        match adc1_byte_source.read_value_blocking(&mut adc1_pin) {
+            Ok(raw_value) => {
+                gps_data.voltage = caclutate_batterie_voltage(raw_value, &mut gps_data).voltage;
+                
+            }            
+            Err(e) => {
+                println!("Infaillible error: {:?}", e);
+            }
+        }
+
+
+        match gps_byte_source.read_byte_blocking() {
             Ok(byte) => {
                 if let Some(process) = process_received_byte(byte, &mut tram_constructor) {
-                    if let Ok(nmea::ParseResult::RMC(rmc)) = nmea::parse_bytes(&process.rmc) {
-                        gps_data.position.latitude = rmc.lat;
-                        gps_data.position.longitude = rmc.lon;
-                        gps_data.time_stamp.date = rmc.fix_date;
-                        gps_data.time_stamp.time = rmc.fix_time;
-                        gps_data.speed.0 = rmc.speed_over_ground;
-                        gps_data.cog.0 = rmc.true_course;
-                    }
-
-                    if let Ok(nmea::ParseResult::GGA(gga)) = nmea::parse_bytes(&process.gga) {
-                        gps_data.altitude = gga.altitude;
-                        if gga.fix_satellites >= Some(6) {
-                            gps_data.is_reliable = true
-                        };
-                    }
-
-                    let mut date: HeaplessString<32> = HeaplessString::new();
-                    if let Some(naive_date) = gps_data.time_stamp.date {
-                        let _ = write!(date, "{:?}", naive_date);
-                    }
-
-                    let mut time: HeaplessString<32> = HeaplessString::new();
-                    if let Some(naive_time) = gps_data.time_stamp.time {
-                        let _ = write!(time, "{:?}", naive_time);
-                    }
-
-                    display_print(&mut display, date, time);
-
+                    nmea_parsing_bytes(&process, &mut gps_data);
+                    let (date, time, speed, voltage) = data_print(&gps_data);
+                    display_print(&mut display, date, time, speed, voltage);
                     gps_data = GpsData::default();
                 }
             }

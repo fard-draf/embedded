@@ -1,4 +1,4 @@
-use crate::conf::{NMEA_MAX_LEN, NMEA_TRAM_COUNT};
+use crate::gps::conf::{NMEA_MAX_LEN, NMEA_TRAM_COUNT};
 use chrono::{self, NaiveDate, NaiveTime};
 //==================================================================================
 #[derive(Debug, Default)]
@@ -9,6 +9,7 @@ pub struct GpsData {
     pub time_stamp: TimeStamp,
     pub is_reliable: bool,
     pub altitude: Option<f32>,
+    pub voltage: Option<f32>
 }
 
 #[derive(Debug, Default, PartialEq, PartialOrd)]

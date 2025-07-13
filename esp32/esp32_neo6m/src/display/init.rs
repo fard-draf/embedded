@@ -3,7 +3,6 @@ use embedded_graphics::{
     mono_font::MonoTextStyle, pixelcolor::BinaryColor, prelude::*, text::Text,
 };
 use heapless::String as HeaplessString;
-
 use esp_hal::i2c::master::I2c;
 
 use esp_println::println;
@@ -16,7 +15,7 @@ pub type DisplayType<'a> = ssd1306::Ssd1306<
 
 use ssd1306::{prelude::*, I2CDisplayInterface, Ssd1306};
 
-pub fn display_init<'a, 'd>(i2c: I2c<'a, esp_hal::Blocking>) -> DisplayType<'a> {
+pub fn display_init<'a >(i2c: I2c<'a, esp_hal::Blocking>) -> DisplayType<'a> {
     let interface = I2CDisplayInterface::new(i2c);
 
     let mut display = Ssd1306::new(interface, DisplaySize128x64, DisplayRotation::Rotate0)
@@ -39,6 +38,8 @@ pub fn display_print(
     display: &mut DisplayType,
     data1: HeaplessString<32>,
     data2: HeaplessString<32>,
+    data3: HeaplessString<32>,
+    data4: HeaplessString<32>
 ) {
     match display.clear(BinaryColor::Off) {
         Ok(display_clear) => display_clear,
@@ -57,7 +58,18 @@ pub fn display_print(
     Text::new(&data2, Point { x: 0, y: 30 }, text_style)
         .draw(display)
         .unwrap();
+    
+    Text::new(&data3, Point { x: 0, y: 45 }, text_style)
+        .draw(display)
+        .unwrap();
+    
+    Text::new(&data4, Point { x: 0, y: 60 }, text_style)
+        .draw(display)
+        .unwrap();
 
+
+    
+    
     match display.flush() {
         Ok(display_instance) => display_instance,
         Err(e) => {
