@@ -42,9 +42,9 @@ fn main() -> ! {
     let mut lstimer0 = ledc.timer::<LowSpeed>(timer::Number::Timer0);
     lstimer0
         .configure(timer::config::Config {
-            duty: timer::config::Duty::Duty10Bit,
+            duty: timer::config::Duty::Duty12Bit,
             clock_source: timer::LSClockSource::APBClk,
-            frequency: 20.kHz(),
+            frequency: 10.kHz(),
         })
         .unwrap();
     

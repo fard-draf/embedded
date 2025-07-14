@@ -38,18 +38,10 @@ fn main() -> ! {
     let mut tram_constructor = TramConstructor::default();
     let mut gps_data = GpsData::default();
     //==========================================
-    
     let mut adc1_byte_source = Adc::new(drivers.volt_adc.peripherals_adc1, drivers.volt_adc.adc1_conf );
     let mut adc1_pin: AdcPin<esp_hal::gpio::GpioPin<34>, peripherals::ADC1> = drivers.volt_adc.adc_pin;
-    // const VOLTAGE_DIVIDER_RATIO: f32 = 2.0;
-    // const VREF_MV: u32 = 3100;
-    // const ADC_MAX_VALUE: u32 = 4095;
-    // const CORRECTION_FACTOR: f32 = 1.1045;
     //==========================================
     loop {
-
-
-
         match adc1_byte_source.read_value_blocking(&mut adc1_pin) {
             Ok(raw_value) => {
                 gps_data.voltage = caclutate_batterie_voltage(raw_value, &mut gps_data).voltage;
@@ -59,7 +51,6 @@ fn main() -> ! {
                 println!("Infaillible error: {:?}", e);
             }
         }
-
 
         match gps_byte_source.read_byte_blocking() {
             Ok(byte) => {
