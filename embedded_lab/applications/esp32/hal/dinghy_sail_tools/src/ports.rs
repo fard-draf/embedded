@@ -1,6 +1,6 @@
 use crate::domain::GpsData;
 use esp_hal::{
-    analog::{self, adc::{Adc, AdcPin}}, gpio::GpioPin, uart::{self, Uart}, Blocking
+    analog::{adc::{Adc, AdcPin}}, uart::{self, Uart}, Blocking
 };
 use nb::block;
 

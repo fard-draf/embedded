@@ -24,7 +24,7 @@ use crate::power_managment::voltage::caclutate_batterie_voltage;
 //==================================================================================
 use esp_backtrace as _;
 use esp_hal::peripherals;
-use esp_hal::{prelude::*, uart::Uart, analog::adc::{Adc,AdcPin, Attenuation}};
+use esp_hal::{prelude::*, uart::Uart, analog::adc::{Adc,AdcPin }};
 use esp_println::println;
 //==================================================================================
 #[entry]

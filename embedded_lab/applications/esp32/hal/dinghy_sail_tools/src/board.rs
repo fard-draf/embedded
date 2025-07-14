@@ -1,5 +1,5 @@
 use esp_hal::{
-    analog::adc::{AdcConfig, AdcPin}, i2c::master::{Config, I2c}, peripheral, peripherals::{self, Peripherals}, prelude::*, uart::{self, Uart}
+    analog::adc::{AdcConfig, AdcPin}, i2c::master::{Config, I2c},  peripherals::{self, Peripherals}, prelude::*, uart::{self, Uart}
 };
 use esp_println::println;
 

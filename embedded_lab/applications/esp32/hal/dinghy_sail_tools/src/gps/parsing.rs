@@ -1,11 +1,6 @@
-use core::fmt::Debug;
-
-use heapless::mpmc::Q2;
-
 use crate::{
     gps::conf::{NMEA_MAX_LEN, NMEA_TRAM_COUNT},
     domain::{GpsData, TramConstructor, TramSelected},
-    ports::GpsByteSource,
 };
 
 //==================================================================================
