@@ -1,0 +1,14 @@
+[package]
+name = "gps_driver"
+version = "0.1.0"
+edition = "2021"
+ 
+[dependencies]
+embedded-hal = "0.2.7"
+nb = "1.1.0"
+log = { version = "0.4.20", optional = true}
+nmea = { version = "0.6.0", default-features = false, features = ["GNSS"]}
+chrono = { version = "0.4.41", default-features = false }
+
+[features]
+log = ["dep:log"]

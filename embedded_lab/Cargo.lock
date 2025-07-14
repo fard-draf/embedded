@@ -316,6 +316,7 @@ dependencies = [
  "esp-backtrace",
  "esp-hal",
  "esp-println",
+ "gps_driver",
  "heapless 0.8.0",
  "nb 1.1.0",
  "nmea",
@@ -761,6 +762,17 @@ name = "gcd"
 version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1d758ba1b47b00caf47f24925c0074ecb20d6dfcffe7f6d53395c0465674841a"
+
+[[package]]
+name = "gps_driver"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "embedded-hal 0.2.7",
+ "log",
+ "nb 1.1.0",
+ "nmea",
+]
 
 [[package]]
 name = "hash32"

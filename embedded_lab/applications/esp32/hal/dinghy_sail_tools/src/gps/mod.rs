@@ -1,2 +1,2 @@
-pub mod parsing;
 pub mod conf;
+pub mod parsing;

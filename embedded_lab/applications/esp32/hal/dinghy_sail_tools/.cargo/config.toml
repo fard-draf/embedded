@@ -15,5 +15,3 @@ build-std = ["core", "alloc"]
 [env]
 ESP_LOG="INFO"
 
-# Pour compiler idf sans changer la configuration
-# cargo build --release --target xtensa-esp32-espidf -p blink_idf

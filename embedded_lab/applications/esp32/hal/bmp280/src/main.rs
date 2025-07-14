@@ -1,6 +1,10 @@
 #![no_std]
 #![no_main]
 
+use bme280::{
+    i2c::{self, BME280},
+    Measurements, SensorMode,
+};
 use esp_backtrace as _;
 use esp_hal::{
     delay::Delay,
@@ -9,7 +13,6 @@ use esp_hal::{
     prelude::*,
 };
 use esp_println::{print, println};
-use bme280::{i2c::{self, BME280}, Measurements, SensorMode};
 
 #[entry]
 fn main() -> ! {
@@ -19,10 +22,10 @@ fn main() -> ! {
     let mut led = Output::new(peripherals.GPIO2, Level::Low);
 
     // let io = Io::new(peripherals.IO_MUX);
-    
+
     let sda = peripherals.GPIO21;
     let scl = peripherals.GPIO22;
-    
+
     let i2c_config = Config {
         frequency: 100.kHz(),
         ..Config::default()
@@ -33,10 +36,9 @@ fn main() -> ! {
         .with_scl(scl);
 
     println!("Initialisation du BME280...");
-    
 
     let mut bme280 = BME280::new_primary(i2c);
-    
+
     match bme280.init(&mut delay) {
         Ok(_) => println!("BME280 initialisé avec succès"),
         Err(e) => {
@@ -45,14 +47,10 @@ fn main() -> ! {
             panic!("BME280 non trouvé!");
         }
     }
-    
-
 
     println!("Démarrage des lectures...\n");
-    
-    
+
     loop {
-        
         match bme280.measure(&mut delay) {
             Ok(measurements) => {
                 println!("=== Mesures BME280 ===");
@@ -65,15 +63,11 @@ fn main() -> ! {
                 println!("Erreur de lecture: {:?}", e);
             }
         }
-        
+
         led.set_high();
         delay.delay_millis(100);
-        
-        
+
         led.set_low();
         delay.delay_millis(10000);
-
     }
-
-
 }

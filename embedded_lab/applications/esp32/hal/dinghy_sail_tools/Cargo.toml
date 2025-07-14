@@ -20,9 +20,9 @@ embedded-graphics = "0.8"
 
 # HEAP
 heapless = "0.8"
-# defmt = "0.3"
-# defmt-rtt = "0.4"
 
+#GPS DRIVER
+gps_driver ={ path = "../../../../drivers/gps_driver" }
 #ADC
 xtensa-lx-rt = { version = "0.17.0", features = ["esp32"], optional = true }
 

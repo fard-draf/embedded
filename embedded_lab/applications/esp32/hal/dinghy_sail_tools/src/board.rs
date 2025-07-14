@@ -1,5 +1,9 @@
 use esp_hal::{
-    analog::adc::{AdcConfig, AdcPin}, i2c::master::{Config, I2c},  peripherals::{self, Peripherals}, prelude::*, uart::{self, Uart}
+    analog::adc::{AdcConfig, AdcPin},
+    i2c::master::{Config, I2c},
+    peripherals::{self, Peripherals},
+    prelude::*,
+    uart::{self, Uart},
 };
 use esp_println::println;
 
@@ -51,25 +55,26 @@ pub fn init<'a>(peripherals: Peripherals) -> BoardDrivers<'a> {
             loop {}
         }
     };
-    //========================================== 
+    //==========================================
 
     let analog_pin = peripherals.GPIO34;
     let periph_adc1 = peripherals.ADC1;
     let mut adc1_config: AdcConfig<esp_hal::peripherals::ADC1> = AdcConfig::new();
-    let pin: AdcPin<esp_hal::gpio::GpioPin<34>, esp_hal::peripherals::ADC1> = adc1_config.enable_pin(
-            analog_pin, 
+    let pin: AdcPin<esp_hal::gpio::GpioPin<34>, esp_hal::peripherals::ADC1> = adc1_config
+        .enable_pin(
+            analog_pin,
             esp_hal::analog::adc::Attenuation::Attenuation11dB,
         );
 
     let volt_adc = VoltAdc {
         adc1_conf: adc1_config,
         peripherals_adc1: periph_adc1,
-        adc_pin: pin
+        adc_pin: pin,
     };
     //========================================== RETURN
     BoardDrivers {
         display_i2c: i2c,
         gps_uart: uart,
-        volt_adc: volt_adc
+        volt_adc: volt_adc,
     }
 }

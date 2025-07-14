@@ -1,17 +1,21 @@
 #![no_std]
 #![no_main]
 
-
 use embedded_hal::{digital::InputPin, pwm::SetDutyCycle};
 use esp_backtrace as _;
 use esp_hal::{
-    prelude::*,delay::Delay, entry, 
-    gpio::{self, Input, Io, Level, Output, Pull}, 
-    i2c::master::{Config, I2c}, 
-    ledc::{self, channel::Number, timer, LSGlobalClkSource, Ledc, LowSpeed}, pcnt::channel, peripheral, 
-    prelude::_esp_hal_ledc_timer_TimerIFace, timer::timg::TimerGroup,
+    analog::adc::{Adc, AdcConfig, AdcPin},
+    delay::Delay,
+    entry,
+    gpio::{self, Input, Io, Level, Output, Pull},
+    i2c::master::{Config, I2c},
+    ledc::{self, channel::Number, timer, LSGlobalClkSource, Ledc, LowSpeed},
+    pcnt::channel,
+    peripheral,
     peripherals::Peripherals,
-    analog::adc::{Adc, AdcPin, AdcConfig},
+    prelude::_esp_hal_ledc_timer_TimerIFace,
+    prelude::*,
+    timer::timg::TimerGroup,
 };
 use esp_println::{print, println};
 
@@ -28,13 +32,11 @@ fn main() -> ! {
     let analog_pin = peripherals.GPIO34;
     let mut adc_conf = AdcConfig::<esp_hal::peripherals::ADC1>::new();
     let mut pin = adc_conf.enable_pin(
-        analog_pin, 
-        esp_hal::analog::adc::Attenuation::Attenuation11dB
+        analog_pin,
+        esp_hal::analog::adc::Attenuation::Attenuation11dB,
     );
 
     let mut adc1 = Adc::new(peripherals.ADC1, adc_conf);
-
-
 
     let mut ledc = Ledc::new(peripherals.LEDC);
     ledc.set_global_slow_clock(LSGlobalClkSource::APBClk);
@@ -47,57 +49,59 @@ fn main() -> ! {
             frequency: 10.kHz(),
         })
         .unwrap();
-    
+
     let mut ch0 = ledc.channel::<LowSpeed>(ledc::channel::Number::Channel0, peripherals.GPIO2);
     let mut ch1 = ledc.channel::<LowSpeed>(ledc::channel::Number::Channel1, peripherals.GPIO4);
     let mut ch2 = ledc.channel::<LowSpeed>(ledc::channel::Number::Channel2, peripherals.GPIO5);
     let mut ch3 = ledc.channel::<LowSpeed>(ledc::channel::Number::Channel3, peripherals.GPIO18);
     let mut ch4 = ledc.channel::<LowSpeed>(ledc::channel::Number::Channel4, peripherals.GPIO19);
 
-    
-    
     ch0.configure(ledc::channel::config::Config {
         timer: &lstimer0,
         duty_pct: 0, // On initialise le rapport cyclique à 0%
         pin_config: ledc::channel::config::PinConfig::PushPull,
-    }).unwrap();
-           
+    })
+    .unwrap();
+
     ch1.configure(ledc::channel::config::Config {
         timer: &lstimer0,
         duty_pct: 0, // On initialise le rapport cyclique à 0%
         pin_config: ledc::channel::config::PinConfig::PushPull,
-    }).unwrap();   
-    
+    })
+    .unwrap();
+
     ch2.configure(ledc::channel::config::Config {
         timer: &lstimer0,
         duty_pct: 0, // On initialise le rapport cyclique à 0%
         pin_config: ledc::channel::config::PinConfig::PushPull,
-    }).unwrap();   
-    
+    })
+    .unwrap();
+
     ch3.configure(ledc::channel::config::Config {
         timer: &lstimer0,
         duty_pct: 0, // On initialise le rapport cyclique à 0%
         pin_config: ledc::channel::config::PinConfig::PushPull,
-    }).unwrap();   
-    
+    })
+    .unwrap();
+
     ch4.configure(ledc::channel::config::Config {
         timer: &lstimer0,
         duty_pct: 0, // On initialise le rapport cyclique à 0%
         pin_config: ledc::channel::config::PinConfig::PushPull,
-    }).unwrap();
-    
+    })
+    .unwrap();
+
     let channels = (ch0, ch1, ch2, ch3, ch4);
     let max_duty: u32 = channels.0.max_duty_cycle() as u32;
 
-
-        // --- Variables d'état pour notre machine d'animation ---
+    // --- Variables d'état pour notre machine d'animation ---
     let mut led_brightness: [u32; 5] = [0; 5]; // Stocke la luminosité actuelle de chaque LED
-    let mut active_led_index: usize = 0;      // L'index de la LED "tête"
-    let mut direction = Direction::Forward;   // La direction actuelle
+    let mut active_led_index: usize = 0; // L'index de la LED "tête"
+    let mut direction = Direction::Forward; // La direction actuelle
 
     // --- Constantes pour régler l'animation ---
     let brightness_step: u32 = max_duty / 25; // Vitesse de fade-in
-    let fade_step: u32 = max_duty / 60;       // Vitesse de fade-out (plus lent pour la traîne)
+    let fade_step: u32 = max_duty / 60; // Vitesse de fade-out (plus lent pour la traîne)
 
     loop {
         let pot_value = nb::block!(adc1.read_oneshot(&mut pin)).unwrap();
@@ -157,4 +161,3 @@ fn main() -> ! {
         delay.delay_micros(delay_us);
     }
 }
-
