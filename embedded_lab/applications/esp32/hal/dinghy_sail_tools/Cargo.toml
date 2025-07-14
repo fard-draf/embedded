@@ -1,0 +1,35 @@
+[package]
+name = "dinghy_sail_tools"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+esp-hal = { version = "0.22", features = ["esp32"] }
+esp-backtrace = { version = "0.14", features = ["esp32", "panic-handler", "exception-handler", "println"] }
+esp-println = { version = "0.12", features = ["esp32"] }
+
+nb = "1.1.0"
+
+embedded-hal = "1.0"
+nmea = { version = "0.6.0", default-features = false, features = ["GNSS"]}
+chrono = { version = "0.4.41", default-features = false }
+
+# SCREEN DISPLAY
+ssd1306 = "0.8"
+embedded-graphics = "0.8"
+
+# HEAP
+heapless = "0.8"
+# defmt = "0.3"
+# defmt-rtt = "0.4"
+
+#ADC
+xtensa-lx-rt = { version = "0.17.0", features = ["esp32"], optional = true }
+
+
+[dev-dependencies]
+defmt-test = { version = "0.4.0", default-features = false }
+
+[[bin]]
+name = "dinghy_sail_tools"
+harness = false

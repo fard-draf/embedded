@@ -1,0 +1,15 @@
+[build]
+target = "xtensa-esp32-none-elf"
+
+[target.xtensa-esp32-espidf]
+runner = "espflash flash --monitor"
+
+[unstable]
+build-std = ["core"]
+
+[env]
+ESP_LOG="INFO"
+
+# Pour compiler idf sans changer la configuration
+# cargo build --release --target xtensa-esp32-espidf -p <project>
+# decommenter workspace member idf et commenter workspace member hal
