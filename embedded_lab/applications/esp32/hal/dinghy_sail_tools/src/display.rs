@@ -7,6 +7,7 @@ use heapless::String as HeaplessString;
 
 use esp_println::println;
 
+//==================================================================================
 pub type DisplayType<'a> = ssd1306::Ssd1306<
     ssd1306::prelude::I2CInterface<esp_hal::i2c::master::I2c<'a, esp_hal::Blocking>>,
     ssd1306::prelude::DisplaySize128x64,
@@ -15,6 +16,7 @@ pub type DisplayType<'a> = ssd1306::Ssd1306<
 
 use ssd1306::{prelude::*, I2CDisplayInterface, Ssd1306};
 
+//==================================================================================
 pub fn display_init<'a>(i2c: I2c<'a, esp_hal::Blocking>) -> DisplayType<'a> {
     let interface = I2CDisplayInterface::new(i2c);
 
@@ -33,6 +35,9 @@ pub fn display_init<'a>(i2c: I2c<'a, esp_hal::Blocking>) -> DisplayType<'a> {
     };
     display
 }
+
+
+//==================================================================================
 
 pub fn display_print(
     display: &mut DisplayType,
@@ -74,4 +79,38 @@ pub fn display_print(
             loop {}
         }
     };
+}
+
+//==================================================================================
+use crate::domain::DataBrooker;
+use core::fmt::Write;
+
+pub fn display_data(
+    gps_data: &DataBrooker,
+) -> (
+    HeaplessString<32>,
+    HeaplessString<32>,
+    HeaplessString<32>,
+    HeaplessString<32>,
+) {
+    let mut date: HeaplessString<32> = HeaplessString::new();
+    if let Some(naive_date) = gps_data.time_stamp.date {
+        let _ = write!(date, "{:?}", naive_date);
+    }
+
+    let mut time: HeaplessString<32> = HeaplessString::new();
+    if let Some(naive_time) = gps_data.time_stamp.time {
+        let _ = write!(time, "{:?}", naive_time);
+    }
+
+    let mut speed: HeaplessString<32> = HeaplessString::new();
+    if let Some(speed_val) = gps_data.speed.0 {
+        let _ = write!(speed, "{:.2?} knots", speed_val);
+    }
+
+    let mut voltage: HeaplessString<32> = HeaplessString::new();
+    if let Some(volt) = gps_data.voltage {
+        let _ = write!(voltage, "{:.2?} volt", volt);
+    }
+    (date, time, speed, voltage)
 }

@@ -4,22 +4,20 @@
 mod board;
 mod display;
 mod domain;
-mod gps;
 mod ports;
-mod power_managment;
+mod parsing;
+mod battery;
 mod utils;
 //==================================================================================
-use crate::display::conf::data_print;
-use crate::display::init::display_init;
-use crate::display::init::display_print;
+use crate::display::display_data;
+use crate::display::display_init;
+use crate::display::display_print;
 use crate::domain::DataBrooker;
-use crate::gps::parsing::nmea_parsing_bytes;
+use crate::parsing::nmea_parsing_bytes;
 use crate::ports::AdcByteSource;
-use crate::power_managment::voltage::caclutate_batterie_voltage;
+use crate::battery::caclutate_battery_voltage;
 use esp_hal::delay::Delay;
 use gps_driver::Gps;
-//==================================================================================
-
 //==================================================================================
 use esp_backtrace as _;
 use esp_hal::peripherals;
@@ -51,7 +49,7 @@ fn main() -> ! {
         match adc1_byte_source.read_value_blocking(&mut adc1_pin) {
             Ok(raw_value) => {
                 data_brooker.voltage =
-                    caclutate_batterie_voltage(raw_value, &mut data_brooker).voltage;
+                    caclutate_battery_voltage(raw_value, &mut data_brooker).voltage;
             }
             Err(e) => {
                 println!("Infaillible error: {:?}", e);
@@ -61,7 +59,7 @@ fn main() -> ! {
         match gps.update() {
             Ok(gps_data) => {
                 nmea_parsing_bytes(gps_data, &mut data_brooker);
-                let (date, time, speed, voltage) = data_print(&data_brooker);
+                let (date, time, speed, voltage) = display_data(&data_brooker);
                 display_print(&mut display, date, time, speed, voltage);
                 data_brooker = DataBrooker::default();
             }
