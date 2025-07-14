@@ -20,7 +20,7 @@ pub struct VoltAdc {
 }
 
 pub fn init<'a>(peripherals: Peripherals) -> BoardDrivers<'a> {
-    //========================================== I2C DISPLAY SCREEN
+    //========================================== I2C0 DISPLAY SCREEN
     let sda = peripherals.GPIO26;
     let scl = peripherals.GPIO27;
 
@@ -33,7 +33,7 @@ pub fn init<'a>(peripherals: Peripherals) -> BoardDrivers<'a> {
         .with_sda(sda)
         .with_scl(scl);
 
-    //========================================== UART GPS NEO-6M
+    //========================================== UART1 GPS NEO-6M
     let config = esp_hal::uart::Config::default()
         .baudrate(9600)
         .parity_none()
@@ -55,8 +55,7 @@ pub fn init<'a>(peripherals: Peripherals) -> BoardDrivers<'a> {
             loop {}
         }
     };
-    //==========================================
-
+    //========================================== ADC1 VOLTAGE READER
     let analog_pin = peripherals.GPIO34;
     let periph_adc1 = peripherals.ADC1;
     let mut adc1_config: AdcConfig<esp_hal::peripherals::ADC1> = AdcConfig::new();
@@ -71,7 +70,7 @@ pub fn init<'a>(peripherals: Peripherals) -> BoardDrivers<'a> {
         peripherals_adc1: periph_adc1,
         adc_pin: pin,
     };
-    //========================================== RETURN
+    //========================================== GLOBAL RETURN
     BoardDrivers {
         display_i2c: i2c,
         gps_uart: uart,

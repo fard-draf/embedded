@@ -1,7 +1,5 @@
 use gps_driver::GpsData;
-
 use crate::domain::DataBrooker;
-
 //==================================================================================
 pub fn nmea_parsing_bytes<'a>(
     gps_data: &GpsData,

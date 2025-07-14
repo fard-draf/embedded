@@ -16,9 +16,9 @@ use crate::domain::DataBrooker;
 use crate::parsing::nmea_parsing_bytes;
 use crate::ports::AdcByteSource;
 use crate::battery::caclutate_battery_voltage;
-use esp_hal::delay::Delay;
-use gps_driver::Gps;
 //==================================================================================
+use gps_driver::Gps;
+use esp_hal::delay::Delay;
 use esp_backtrace as _;
 use esp_hal::peripherals;
 use esp_hal::{
