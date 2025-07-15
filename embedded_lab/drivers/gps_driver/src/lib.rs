@@ -1,5 +1,4 @@
 #![no_std]
-pub mod conf;
 
 pub use chrono::{self, NaiveDate, NaiveTime};
 pub use embedded_hal;
@@ -92,7 +91,7 @@ impl<SERIAL> Gps<SERIAL> {
                 self.translate_to_gps_data(parsed_sentence);
                 true
             }
-            Err(e) => {
+            Err(_e) => {
                 // Failed to parse (invalid sentence, checksum error, etc.)
                 // If the "log" feature is enabled, we log this.
                 #[cfg(feature = "log")]
