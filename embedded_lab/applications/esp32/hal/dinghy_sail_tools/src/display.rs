@@ -5,8 +5,9 @@ use embedded_graphics::prelude::*;
 use embedded_graphics::pixelcolor::BinaryColor;
 use embedded_graphics::text::Text;
 use embedded_graphics::mono_font::iso_8859_15::FONT_9X15_BOLD;
+use embedded_graphics::mono_font::iso_8859_14::FONT_10X20;
 use embedded_graphics::mono_font::MonoTextStyle; 
-use heapless::String as HeaplessString;
+use heapless::{String as HeaplessString, Vec};
 use esp_println::println;
 use core::fmt::Write;
 use ssd1306::{prelude::*, I2CDisplayInterface, Ssd1306};
@@ -16,12 +17,26 @@ pub type DisplayType<'a> = ssd1306::Ssd1306<
     ssd1306::prelude::DisplaySize128x64,
     ssd1306::mode::BufferedGraphicsMode<ssd1306::prelude::DisplaySize128x64>,
 >;
+//================================================================================== MAX_LINES_SCREEN 
+const MAX_LINES_ON_SCREEN: usize = 4;
 //================================================================================== DISPLAYTYPE
-pub struct DisplaySetup {
-    data1: HeaplessString<32>,
-    data2: HeaplessString<32>,
-    data3: HeaplessString<32>,
-    data4: HeaplessString<32>,
+
+#[derive(Debug)]
+pub struct DisplayLayout<'a> {
+    pub lines: Vec<HeaplessString<32>, MAX_LINES_ON_SCREEN>,
+    pub text: MonoTextStyle<'a, BinaryColor>,
+    pub line_height: usize,
+
+}
+
+impl<'a> DisplayLayout<'a> {
+    pub fn new() -> Self {
+        Self { 
+            lines: Vec::new(),
+            text: MonoTextStyle::new(&FONT_9X15_BOLD, BinaryColor::On),
+            line_height: 12,
+        }
+    }
 }
 //================================================================================== DISPLAYINIT
 pub fn display_init<'a>(i2c: I2c<'a, esp_hal::Blocking>) -> DisplayType<'a> {
@@ -45,10 +60,10 @@ pub fn display_init<'a>(i2c: I2c<'a, esp_hal::Blocking>) -> DisplayType<'a> {
 //================================================================================== DISPLAYPRINT
 
 pub fn display_print(
-    display_type: &mut DisplayType,
-    display_setup: &DisplaySetup,
+    display: &mut DisplayType,
+    layout: &DisplayLayout,
 ) {
-    match display_type.clear(BinaryColor::Off) {
+    match display.clear(BinaryColor::Off) {
         Ok(display_clear) => display_clear,
         Err(e) => {
             println!("Display default: {:?}", e);
@@ -57,25 +72,17 @@ pub fn display_print(
     };
 
 
-    let text_style = MonoTextStyle::new(&FONT_9X15_BOLD, BinaryColor::On);
+    let text_style = layout.text;
+    let line_height = layout.line_height as i32;
 
-    Text::new(&display_setup.data1, Point { x: 0, y: 12 }, text_style)
-        .draw(display_type)
-        .unwrap();
+    for (index, text_line) in layout.lines.iter().enumerate() {
+        let y_position = 12 + (index as i32 * line_height);
+        Text::new(&text_line, Point { x: 0, y: y_position }, text_style)
+            .draw(display).unwrap();
+    }
 
-    Text::new(&display_setup.data2, Point { x: 0, y: 30 }, text_style)
-        .draw(display_type)
-        .unwrap();
 
-    Text::new(&display_setup.data3, Point { x: 0, y: 45 }, text_style)
-        .draw(display_type)
-        .unwrap();
-
-    Text::new(&display_setup.data4, Point { x: 0, y: 60 }, text_style)
-        .draw(display_type)
-        .unwrap();
-
-    match display_type.flush() {
+    match display.flush() {
         Ok(display_instance) => display_instance,
         Err(e) => {
             println!("Display default: {:?}", e);
@@ -88,60 +95,65 @@ pub fn display_print(
 
 pub fn display_mode_1(
     gps_data: &DataBrooker,
-) -> DisplaySetup
+) -> DisplayLayout
 {
-    let mut date: HeaplessString<32> = HeaplessString::new();
-    if let Some(naive_date) = gps_data.time_stamp.date {
-        let _ = write!(date, "{:?}", naive_date);
-    }
+    let mut layout = DisplayLayout::new();
 
-    let mut time: HeaplessString<32> = HeaplessString::new();
     if let Some(naive_time) = gps_data.time_stamp.time {
+    let mut time: HeaplessString<32> = HeaplessString::new();
         let _ = write!(time, "{:?}", naive_time);
+        layout.lines.push(time).unwrap_or_default();
     }
 
-    let mut speed: HeaplessString<32> = HeaplessString::new();
     if let Some(speed_val) = gps_data.speed.0 {
+    let mut speed: HeaplessString<32> = HeaplessString::new();
         let _ = write!(speed, "{:.2?} knots", speed_val);
+        layout.lines.push(speed).unwrap_or_default();
     }
 
-    let mut voltage: HeaplessString<32> = HeaplessString::new();
     if let Some(volt) = gps_data.voltage {
+    let mut voltage: HeaplessString<32> = HeaplessString::new();
         let _ = write!(voltage, "{:.2?} volt", volt);
+        layout.lines.push(voltage).unwrap_or_default();
     }
 
-    DisplaySetup{ 
-        data1: date, 
-        data2: time, 
-        data3: speed, 
-        data4: voltage
-    }
+    layout.line_height = 15;
+    layout.text = MonoTextStyle::new(&FONT_10X20, BinaryColor::On);
+
+    layout
+
+
 }
 
-// pub fn display_mode_2(
-//     gps_data: &DataBrooker,
-// ) -> DisplaySetupConstruct
-// {
-//     let mut time: HeaplessString<32> = HeaplessString::new();
-//     if let Some(naive_time) = gps_data.time_stamp.time {
-//         let _ = write!(time, "{:?}", naive_time);
-//     }
 
-//     let mut speed: HeaplessString<32> = HeaplessString::new();
-//     if let Some(speed_val) = gps_data.speed.0 {
-//         let _ = write!(speed, "{:.2?} knots", speed_val);
-//     }
+pub fn display_mode_2(
+    gps_data: &DataBrooker,
+) -> DisplayLayout
+{
+    let mut layout = DisplayLayout::new();
 
-//     let mut voltage: HeaplessString<32> = HeaplessString::new();
-//     if let Some(volt) = gps_data.voltage {
-//         let _ = write!(voltage, "{:.2?} volt", volt);
-//     }
+    if let Some(speed_val) = gps_data.speed.0 {
+    let mut speed: HeaplessString<32> = HeaplessString::new();
+        let _ = write!(speed, "speed:  {:.2?}", speed_val);
+        layout.lines.push(speed).unwrap_or_default();
+    }
 
-//     DisplaySetupConstruct { 
-//         data1: date, 
-//         data2: time, 
-//         data3: speed, 
-//         data4: voltage
-//     }
-// }
+    if let Some(alt) = gps_data.altitude {
+    let mut altitude: HeaplessString<32> = HeaplessString::new();
+        let _ = write!(altitude, "alt:    {:?}", alt);
+        layout.lines.push(altitude).unwrap_or_default();
+    }
 
+    if let Some(volt) = gps_data.voltage {
+    let mut voltage: HeaplessString<32> = HeaplessString::new();
+        let _ = write!(voltage, "volt:   {:.2?}", volt);
+        layout.lines.push(voltage).unwrap_or_default();
+    }
+
+    layout.line_height = 22;
+    layout.text = MonoTextStyle::new(&FONT_10X20, BinaryColor::On);
+
+    layout
+
+
+}

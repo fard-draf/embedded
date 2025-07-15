@@ -2,7 +2,6 @@ use esp_hal::{
     analog::adc::{Adc, AdcPin},
 };
 use nb::block;
-
 type AdcPinType = AdcPin<esp_hal::gpio::GpioPin<34>, esp_hal::peripherals::ADC1>;
 //==================================================================================
 pub trait AdcByteSource {
