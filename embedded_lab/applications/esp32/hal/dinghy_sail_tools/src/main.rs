@@ -9,7 +9,7 @@ mod parsing;
 mod battery;
 mod utils;
 //==================================================================================
-use crate::display::display_data;
+use crate::display::display_mode_1;
 use crate::display::display_init;
 use crate::display::display_print;
 use crate::domain::DataBrooker;
@@ -59,8 +59,8 @@ fn main() -> ! {
         match gps.update() {
             Ok(gps_data) => {
                 nmea_parsing_bytes(gps_data, &mut data_brooker);
-                let (date, time, speed, voltage) = display_data(&data_brooker);
-                display_print(&mut display, date, time, speed, voltage);
+                let display_setup = display_mode_1(&data_brooker);
+                display_print(&mut display, &display_setup);
                 data_brooker = DataBrooker::default();
             }
             Err("No new data") => {
