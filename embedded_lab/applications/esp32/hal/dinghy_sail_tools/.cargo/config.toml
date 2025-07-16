@@ -10,7 +10,7 @@ target = "xtensa-esp32-none-elf"
 
 
 [unstable]
-build-std = ["core", "alloc"]
+build-std = ["core"]
 
 [env]
 ESP_LOG="INFO"

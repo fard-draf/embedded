@@ -21,9 +21,7 @@ gps_driver ={ path = "../../../../drivers/gps_driver" }
 #ADC
 xtensa-lx-rt = { version = "0.17.0", features = ["esp32"], optional = true }
 micromath = "2.1.0"
-#WASM
-wasm = {version = "0.40.0", default-features = false}
-linked_list_allocator = "0.10.5"
+
 
 
 
