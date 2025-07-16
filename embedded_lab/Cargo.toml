@@ -3,8 +3,10 @@ resolver = "2"
 members = [
     "applications/esp32/hal/*",
     #"applications/esp32/idf/*",
-    "drivers/*"
-]
+    "drivers/*", "tools/wasm-compiler", 
+    "wasm/dst_display_mod",
+    "tools/wasm-compiler",
+    ]
 
 
 [profile.release]

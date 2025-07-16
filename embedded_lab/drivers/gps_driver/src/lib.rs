@@ -113,6 +113,7 @@ impl<SERIAL> Gps<SERIAL> {
                 self.data.date = data.fix_date;
             }
             ParseResult::GGA(data) => {
+                self.data.altitude = data.altitude;
                 self.data.sat_count = data.fix_satellites;
                 self.data.fix = {
                     if data.fix_satellites > Some(4) {
